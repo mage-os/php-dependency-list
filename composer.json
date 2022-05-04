@@ -1,0 +1,25 @@
+{
+    "name": "mage-os/php-dependency-list",
+    "description": "Determine composer dependencies for a php file within a project",
+    "require": {
+        "nikic/php-parser": "^4.13"
+    },
+    "license": "BSD-3-Clause",
+    "autoload": {
+        "psr-4": {
+            "MageOs\\PhpDependencyList\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vinai Kopp",
+            "email": "vinai@netzarbeiter.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "bin": [
+        "bin/php-classes.php"
+    ]
+}
