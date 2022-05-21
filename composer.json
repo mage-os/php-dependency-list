@@ -20,6 +20,6 @@
         "phpunit/phpunit": "^9.5"
     },
     "bin": [
-        "bin/php-classes.php"
+        "php-classes.phar"
     ]
 }
