@@ -25,11 +25,34 @@ EOT;
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="DateTimeInterface" type="DateTimeImmutable" />
+    <preference for="Just\Another\TypeInterface" type="This\Is\The\Implementation"/>
+
 </config>
 EOT;
         $sut = new ReferencedClassesInDiXML();
         
         $list = $sut->extractReferencedClassesFrom($xmlCode);
-        $this->assertSame([\DateTimeImmutable::class], $list);
+        $this->assertSame([\DateTimeImmutable::class, \This\Is\The\Implementation::class], $list);
+    }
+    
+    public function testParsesObjectArguments(): void
+    {
+        $xmlCode = <<<EOT
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="This\Is\The\TargetType">
+        <arguments>
+            <argument name="dataTypeClassMap" xsi:type="array">
+                <item name="foo" xsi:type="object">This\Is\A\Nested\ArrayType</item>
+            </argument>
+            <argument name="dataProcessor" xsi:type="object">This\Is\A\Direct\ArgumentType</argument>
+        </arguments>
+    </type>
+</config>
+EOT;
+        $sut = new ReferencedClassesInDiXML();
+        
+        $list = $sut->extractReferencedClassesFrom($xmlCode);
+        $this->assertSame([\This\Is\A\Nested\ArrayType::class, \This\Is\A\Direct\ArgumentType::class], $list);
     }
 }
