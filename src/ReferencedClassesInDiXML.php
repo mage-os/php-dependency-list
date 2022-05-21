@@ -17,8 +17,9 @@ class ReferencedClassesInDiXML
         
         $preferences = $this->extractPreferences($dom);
         $arguments = $this->extractArguments($dom);
+        $virtualTypes = $this->extractVirtualTypes($dom);
         
-        return merge($preferences, $arguments);
+        return merge($preferences, $arguments, $virtualTypes);
     }
 
     private function extractPreferences(\DOMDocument $dom): array
@@ -38,10 +39,23 @@ class ReferencedClassesInDiXML
     {
         /** @var $arguments \DOMElement[] */
         $xpath  = new \DOMXPath($dom);
-        $arguments = $xpath->query("/config/type/arguments//argument|item[@xsi:type='object']");
+        $arguments = $xpath->query("//argument[@xsi:type='object']|//item[@xsi:type='object']");
         $classes = [];
         foreach ($arguments as $argument) {
-            $classes[] = trim($argument->textContent);
+            $classes[] = trim($argument->nodeValue);
+        }
+        
+        return $classes;
+    }
+
+    private function extractVirtualTypes(\DOMDocument $dom): array
+    {
+        /** @var $virtualTypes \DOMElement[] */
+        $xpath  = new \DOMXPath($dom);
+        $virtualTypes = $xpath->query("/config/virtualType[@type]");
+        $classes = [];
+        foreach ($virtualTypes as $virtualType) {
+            $classes[] = trim($virtualType->getAttribute('type'));
         }
         
         return $classes;
