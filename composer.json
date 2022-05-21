@@ -1,6 +1,6 @@
 {
     "name": "mage-os/php-dependency-list",
-    "description": "Determine composer dependencies for a php file within a project",
+    "description": "Determine PHP class source dependencies file within a project",
     "require": {
         "nikic/php-parser": "^4.13"
     },

@@ -5,7 +5,7 @@ namespace MageOs\PhpDependencyList;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-if (array_search('--help', $argv, true)) {
+if (array_search('--help', $argv, true) || array_search('-h', $argv, true)) {
     fwrite(STDERR, <<<EOT
 Usage:
     {$argv[0]} -f files.txt
@@ -14,14 +14,15 @@ Usage:
     
 If no files are specified, PHP Code is read from STDIN. Multiple code files can be separated by a zero byte.
 
-EOT);
+EOT
+    );
     exit(1);
 }
 
-$args        = array_values(array_slice($argv, 1));
+$args = array_values(array_slice($argv, 1));
 if (false !== ($idx = array_search('-f', $args))) {
-    if (! isset($args[$idx + 1])) {
-        fwrite(STDERR , "Missing file containing file-list after argument -f.\n");
+    if (!isset($args[$idx + 1])) {
+        fwrite(STDERR, "Missing file containing file-list after argument -f.\n");
         exit(1);
     }
     $args = explode("\n", file_get_contents($args[$idx + 1]));
@@ -30,8 +31,11 @@ $phpProvider = empty($args) ? new ListPhpFromStdin() : new ListPhpFromFiles(... 
 
 foreach ($phpProvider->list() as $phpCode) {
     try {
-        PrintClassNames::echo((new ReferencedPhpClasses())->list($phpCode));
+        PrintClassNames::echo((new PHPReferencedClasses())->list($phpCode));
+    } catch (\PhpParser\Error $exception) {
+        // Ignore parse error exceptions in input
     } catch (\Exception $exception) {
-        //fwrite(STDERR, $exception->getMessage() . PHP_EOL);
+        fwrite(STDERR, $exception->getMessage() . PHP_EOL);
+        exit(1);
     }
 }

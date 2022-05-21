@@ -12,7 +12,7 @@ use function array_filter as filter;
 use function array_map as map;
 use function array_unique as unique;
 
-class ReferencedPhpClasses
+class PHPReferencedClasses
 {
     private static $exclude = [
         '\\true',
