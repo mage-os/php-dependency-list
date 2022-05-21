@@ -2,9 +2,10 @@
 
 namespace MageOs\PhpDependencyList;
 
+use MageOs\PhpDependencyList\Exception\ParseException;
 use PHPUnit\Framework\TestCase;
 
-class PHPReferencedClassesTest extends TestCase
+class ReferencedClassesinPHPTest extends TestCase
 {
     public function testThrowsExceptionOnInvalidPhp()
     {
@@ -12,10 +13,10 @@ class PHPReferencedClassesTest extends TestCase
 <?php class Qux {
     public function moo(Buz \$buz) {}
 EOT;
-        $sut = new PHPReferencedClasses();
+        $sut = new ReferencedClassesInPHP();
         
-        $this->expectException(\PhpParser\Error::class);
-        $sut->list($phpCode);
+        $this->expectException(ParseException::class);
+        $sut->extractReferencedClassesFrom($phpCode);
 
     }
 
@@ -32,9 +33,9 @@ EOT;
     <preference for="DateTimeInterface" type="DateTime" />
 </config>
 EOT;
-        $sut = new PHPReferencedClasses();
+        $sut = new ReferencedClassesInPHP();
         
-        $result = $sut->list($xmlCode);
+        $result = $sut->extractReferencedClassesFrom($xmlCode);
         
         $this->assertSame([], $result);
     }

@@ -4,12 +4,12 @@ namespace MageOs\PhpDependencyList;
 
 use PHPUnit\Framework\TestCase;
 
-class ListPhpFromStdinTest extends TestCase
+class ListFilesFromStdinTest extends TestCase
 {
     public function testEmptyStream(): void
     {
         $stream = fopen('php://temp', 'r');
-        $sut = new ListPhpFromStdin($stream);
+        $sut = new ListCodeFromStdin($stream);
 
         $this->assertSame([], iterator_to_array($sut->list()));
         
@@ -27,7 +27,7 @@ EOT;
         fseek($stream, 0, SEEK_SET);
 
         
-        $sut = new ListPhpFromStdin($stream);
+        $sut = new ListCodeFromStdin($stream);
         $this->assertSame([$phpCode], iterator_to_array($sut->list()));
     }
     
@@ -47,7 +47,7 @@ EOT;
         fwrite($stream, $phpCode1 . "\0" . $phpCode2);
         fseek($stream, 0, SEEK_SET);
         
-        $sut = new ListPhpFromStdin($stream);
+        $sut = new ListCodeFromStdin($stream);
         
         $this->assertSame([$phpCode1, $phpCode2], iterator_to_array($sut->list()));
     }
@@ -63,7 +63,7 @@ EOT;
         fwrite($stream, "\0" . $phpCode);
         fseek($stream, 0, SEEK_SET);
         
-        $sut = new ListPhpFromStdin($stream);
+        $sut = new ListCodeFromStdin($stream);
         
         $this->assertSame([$phpCode], iterator_to_array($sut->list()));
     }
@@ -79,7 +79,7 @@ EOT;
         fwrite($stream, $phpCode . "\0");
         fseek($stream, 0, SEEK_SET);
         
-        $sut = new ListPhpFromStdin($stream);
+        $sut = new ListCodeFromStdin($stream);
         
         $this->assertSame([$phpCode], iterator_to_array($sut->list()));
     }
@@ -90,7 +90,7 @@ EOT;
         fwrite($stream, "\0\0");
         fseek($stream, 0, SEEK_SET);
 
-        $sut = new ListPhpFromStdin($stream);
+        $sut = new ListCodeFromStdin($stream);
 
         $this->assertSame([], iterator_to_array($sut->list()));
     }

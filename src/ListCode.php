@@ -2,7 +2,7 @@
 
 namespace MageOs\PhpDependencyList;
 
-interface PhpCodeProvider
+interface ListCode
 {
     public function list(): \Iterator;
 }

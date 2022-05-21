@@ -2,7 +2,7 @@
 
 namespace MageOs\PhpDependencyList;
 
-class ListPhpFromStdin implements PhpCodeProvider
+class ListCodeFromStdin implements ListCode
 {
     /**
      * @var resource
