@@ -1,0 +1,25 @@
+#!/bin/bash -xe
+
+cd /workspaces/php-dependency-list
+
+docker build . --tag myphp:1.0.0
+
+#  --volume /etc/passwd:/etc/passwd:ro \
+#     --volume /etc/groupd:/etc/groupd:ro \
+
+
+docker run -t \
+    --volume $(pwd):/usr/src \
+    myphp:1.0.0 \
+    bash -c "cd mageos-magento2 && composer install --no-dev"
+
+docker run -t \
+    --volume $(pwd):/usr/src \
+    myphp:1.0.0 \
+    bash -c "cd mageos-magento2 && time php -d memory_limit=1G ../php-classes.phar --json-output --include-source-file --include-module-names -- ./app ./lib ./pub ./setup"
+    #bash -c "cd mageos-magento2 && time php -d memory_limit=1G ../bin/php-classes.php --json-output --include-source-file --include-module-names -- ./app ./lib ./pub ./setup"
+
+
+exit
+
+docker run -t --volume $(pwd):/usr/src myphp:1.0.0 bash -c "make" 
