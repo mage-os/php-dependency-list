@@ -4,9 +4,13 @@ cd /workspaces/php-dependency-list
 
 docker build . --tag myphp:1.0.0
 
-#  --volume /etc/passwd:/etc/passwd:ro \
-#     --volume /etc/groupd:/etc/groupd:ro \
+## build php-classes.phar
+docker run -t --volume $(pwd):/usr/src myphp:1.0.0 bash -c "composer install --no-dev && ./box.phar compile && ./php-classes.phar --help || true"
 
+## fresh install of Mage-OS
+rm -rf mageos-magento2 || true
+
+git clone --depth 1 https://github.com/mage-os/mageos-magento2.git --single-branch
 
 docker run -t \
     --volume $(pwd):/usr/src \
@@ -16,10 +20,10 @@ docker run -t \
 docker run -t \
     --volume $(pwd):/usr/src \
     myphp:1.0.0 \
-    bash -c "cd mageos-magento2 && time php -d memory_limit=1G ../php-classes.phar --json-output --include-source-file --include-module-names -- ./app ./lib ./pub ./setup"
+    bash -c "cd mageos-magento2 && time php -d memory_limit=1G ../php-classes.phar --json-output --include-source-file --include-module-names -- ./app ./lib ./pub ./setup > dependencies-all.json"
     #bash -c "cd mageos-magento2 && time php -d memory_limit=1G ../bin/php-classes.php --json-output --include-source-file --include-module-names -- ./app ./lib ./pub ./setup"
 
-
-exit
-
-docker run -t --volume $(pwd):/usr/src myphp:1.0.0 bash -c "make" 
+docker run -t \
+    --volume $(pwd):/usr/src \
+    myphp:1.0.0 \
+    bash -c "cd mageos-magento2 && time php -d memory_limit=1G ../php-classes.phar --json-output --include-source-file --include-module-names -- ./app/code/Magento/AdminAnalytics > dependencies-admin-analytics.json"
