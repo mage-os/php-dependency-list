@@ -19,6 +19,11 @@
     "require-dev": {
         "phpunit/phpunit": "^9.5"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "MageOs\\PhpDependencyList\\": "tests/MageOs/PhpDependencyList/"
+        }
+    },
     "bin": [
         "php-classes.phar"
     ]

@@ -1,5 +1,8 @@
 FROM php:8.1.14-cli
 
+ARG UUID=1000
+ARG GUID=1000
+
 # composer install
 RUN EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"; \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"; \
@@ -41,6 +44,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure sockets \
 	&& docker-php-ext-install -j$(nproc) sockets
 
-# COPY . /usr/src/myapp
+# create user to run as
+RUN groupadd --gid ${GUID} --non-unique mage \
+    && useradd --gid mage --shell /bin/bash --uid ${UUID} --no-user-group --non-unique mage
+
 WORKDIR /usr/src
-# CMD [ "php", "./your-script.php" ]
+USER mage

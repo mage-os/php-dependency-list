@@ -2,8 +2,9 @@
 
 cd /workspaces/php-dependency-list
 
-docker build . --tag myphp:1.0.0
+docker build --build-arg UUID=$(id -u) --build-arg GUID=$(id -g) . --tag myphp:1.0.0
 
+exit
 ## build php-classes.phar
 docker run -t --volume $(pwd):/usr/src myphp:1.0.0 bash -c "composer install --no-dev && ./box.phar compile && ./php-classes.phar --help || true"
 

@@ -14,108 +14,135 @@ use MageOs\PhpDependencyList\CodeProvider\ListCodeFromFileList;
 use MageOs\PhpDependencyList\CodeProvider\ListCodeFromFiles;
 use MageOs\PhpDependencyList\CodeProvider\ListCodeFromStdin;
 
-$validParserTypes = [
-    '--'.ReferencedClassesInPHP::CODE,
-    '--'.ReferencedClassesInDiXML::CODE,
-    '--'.ReferencedModulesInComposerJson::CODE,
-    '--'.ReferencedModulesInModuleXml::CODE,
-];
-$validParserTypesOptions = implode('|', $validParserTypes);
-$defaultParser = '--'.ReferencedClassesInPHP::CODE;
 
-const JSON_OUTPUT = '--json-output';
-const INCLUDE_SOURCE_FILE = '--include-source-file';
-const INCLUDE_MODULE_NAME = '--include-module-names';
-$optionalArguments = '['.JSON_OUTPUT.'] ['.INCLUDE_SOURCE_FILE.'] ['.INCLUDE_MODULE_NAME.']';
+// default config
+const OPTION_ENABLE_ALL_PARSERS = '--all';
+$validParsers = [
+    '--'.ReferencedClassesInPHP::CODE => ReferencedClassesInPHP::class,
+    '--'.ReferencedClassesInDiXML::CODE => ReferencedClassesInDiXML::class,
+    '--'.ReferencedModulesInComposerJson::CODE => ReferencedModulesInComposerJson::class,
+    '--'.ReferencedModulesInModuleXml::CODE => ReferencedModulesInModuleXml::class,
+];
+$enabledParsers = [
+    ReferencedClassesInPHP::class
+];
+$hasSpecifiedParser = false;
+
+const OPTION_OUTPUT_JSON = '--output-json';
+const OPTION_OUTPUT_INCLUDE_SOURCE_FILE = '--include-source-file';
+const OPTION_OUTPUT_INCLUDE_MODULE_NAME = '--include-module-names';
+$outputJson = false;
+$outputIncludeSourceFile = false;
+$outputIncludeModuleName = false;
 
 const INPUT_TYPE_STDIN = 0;
-const INPUT_TYPE_FILE = 1; // list of files in file
+const INPUT_TYPE_FILE_LIST = 1; // list of files in file
 const INPUT_TYPE_FILES = 2; // list of files passed in as arguments
+$inputType = null;
 
-if (array_search('--help', $argv, true) || array_search('-h', $argv, true)) {
+function printHelpEndExit(){
+    global $argv, $validParsers;
+
+    $validParserOptions = implode(', ', array_keys($validParsers));
+
     fwrite(STDERR, <<<EOT
 Usage:
-    {$argv[0]} {$optionalArguments} -f files.txt
-    {$argv[0]} {$optionalArguments} -- [files...]
-    cat file.php | {$argv[0]} {$optionalArguments} [{$validParserTypesOptions}] 
-    (When passing code directly, default parser type is {$defaultParser})
+    {$argv[0]} -f files.txt
+    {$argv[0]} [files...]
+    cat file.php | {$argv[0]}
 
+Input Options:
+    Stdin       - If no files are specified, input code is read from STDIN. Multiple files via STDIN can be separated by a zero byte. 
+    File list   - If -f is specified before a list of files, each file is assumed to be a list of files to scan
+    Files       - If -f is NOT specified, each file specified is scanned
+    Both "File List" and "Files" options will recursively scan any directories specified for appropriate files.
+
+Parser Options:
+    By default only PHP (.php/.phtml) files will be evaluated. Any non PHP files will be silently ignored.
+    You can change this behaviour by specifying any of the following parsers: {$validParserOptions}
+    You can specify multiple parsers, if you wish to evaluate multiple file types in a single.
+    You can also specify the {OPTION_ENABLE_ALL_PARSERS} option to enable all parsers
+    For example: 
+    {$argv[0]} --di.xml --php [files...]    - parse all di.xml and php files in the supplied list
+    {$argv[0]} --all [files...]             - parse all files in the supplied list
+
+Output Options
     --json-output               Output in JSON format
-    --include-source-file       If the source file each class referenced found should be included in the output
-    --include-module-names      If the module name of each class referenced found should be included
-
-If no files are specified, input code is read from STDIN. Multiple files via STDIN can be separated by a zero byte.  
+    --include-source-file       Include the source filepath of each class referenced in the output
+    --include-module-names      Include the module name of each class referenced in the output
 
 EOT
     );
     exit(1);
 }
 
-$parsers = [
-    ReferencedClassesInPHP::CODE => new ReferencedClassesInPHP(),
-    ReferencedClassesInDiXML::CODE => new ReferencedClassesInDiXML(),
-    ReferencedModulesInComposerJson::CODE => new ReferencedModulesInComposerJson(),
-    ReferencedModulesInModuleXml::CODE =>  new ReferencedModulesInModuleXml(),
-];
-// parse all the cli options
-$args = array_values(array_slice($argv, 1));
-$isJsonOutput = false;
-$includeSourceFile = false;
-$includeModuleName = false;
-$inputType = null;
-foreach($args as $index => $arg){
-    switch($arg){
-        case '--'.ReferencedClassesInPHP::CODE:
-        case '--'.ReferencedClassesInDiXML::CODE:
-        case '--'.ReferencedModulesInComposerJson::CODE:
-        case '--'.ReferencedModulesInModuleXml::CODE:
-            $inputType = INPUT_TYPE_STDIN;
-            break 2;
-        case JSON_OUTPUT:
-            $isJsonOutput = true;
-            break;
-        case INCLUDE_SOURCE_FILE:
-            $includeSourceFile = true;
-            break;
-        case INCLUDE_MODULE_NAME:
-            $includeModuleName = true;
-            break;
-        case '--':
-            $inputType = INPUT_TYPE_FILES;
-            break 2;
-        case '-f':
-            $inputType = INPUT_TYPE_FILE;
-            break 2;
+// loop through an pull out valid options
+$args = [];
+if(count($argv) > 1){
+    for($x=1; $x<count($argv); $x++){
+        $option = $argv[$x];
+
+        if(isset($validParsers[$option])){
+            if(!$hasSpecifiedParser){
+                $enabledParsers = [$validParsers[$option]];
+                $hasSpecifiedParser = true;
+            }else{
+                $enabledParsers[] = $validParsers[$option];
+            }
+            continue;
+        }
+
+        switch($option){
+            case OPTION_ENABLE_ALL_PARSERS:
+                $enabledParsers = array_values($validParsers);
+                $hasSpecifiedParser = true;
+                break;
+            case OPTION_OUTPUT_JSON:
+                $outputJson = true;
+                break;
+            case OPTION_OUTPUT_INCLUDE_MODULE_NAME:
+                $outputIncludeModuleName = true;
+                break;
+            case OPTION_OUTPUT_INCLUDE_SOURCE_FILE:
+                $outputIncludeSourceFile = true;
+                break;
+            case '-h':
+            case '?':
+            case '--help':
+                printHelpEndExit();
+                break;
+            default:
+                $args[] = $option;
+        }
     }
 }
+$enabledParsers = array_unique($enabledParsers);
+$parsers = [];
 $filePatterns = [];
-foreach($parsers as $parser){
+foreach($enabledParsers as $enabledParser){
+    $parser = new $enabledParser();
+    $parsers[] = $parser;
     $filePatterns[] = $parser->getParsiblePattern();
 }
 
-switch($inputType){
-    case INPUT_TYPE_STDIN:
-        $parsers = [$parsers[substr($arg, 2)]];
-        $codeProvider = new ListCodeFromStdin();
-        break;
-    case INPUT_TYPE_FILE:
-        $codeProvider = new ListCodeFromFileList($filePatterns, $args[($index + 1)]);
-        break;
-    case INPUT_TYPE_FILES:
-        $codeProvider = new ListCodeFromFiles($filePatterns, ...array_slice($args, $index + 1));
-        break;
-    case null:
-        $parsers = [$parsers[ReferencedClassesInPHP::CODE]];
-        $codeProvider = new ListCodeFromStdin();
-        break;
+// work out options specified.
+if(count($args) == 0){
+    // no arguments left, must be STDIN
+    $inputType = INPUT_TYPE_STDIN;
+    $codeProvider = new ListCodeFromStdin();
+}elseif($args[0] == '-f'){
+    $inputType = INPUT_TYPE_FILE_LIST;
+    $codeProvider = new ListCodeFromFileList($filePatterns, ...array_slice($args, 1));
+}else{
+    $inputType = INPUT_TYPE_FILES;
+    $codeProvider = new ListCodeFromFiles($filePatterns, ...$args);
 }
 
-if($isJsonOutput){
+if($outputJson){
     $outputter = new Output\JsonOutput();
 }else{
     $outputter = new Output\StdOutOutput();
 }
-
 $sourceResolver = new SourceResolver();
 
 $report = [];
@@ -125,7 +152,7 @@ foreach ($codeProvider->list() as $filePath => $code) {
         foreach($parsers as $parser){
             if($parser->canParse($filePath)){
                 $references = $parser->parse($code);
-                if($includeModuleName || $includeSourceFile){
+                if($outputIncludeSourceFile || $outputIncludeModuleName){
                     foreach($references as $reference){
                         $sourceResolver->resolve($reference);
                     }
@@ -133,8 +160,8 @@ foreach ($codeProvider->list() as $filePath => $code) {
                 break;
             }
         }
-        if(!$isJsonOutput){
-            $outputter->print($filePath, $references, $includeSourceFile, $includeModuleName);
+        if(!$outputJson){
+            $outputter->print($filePath, $references, $outputIncludeSourceFile, $outputIncludeModuleName);
         }else{
             $report[$filePath] = $references;
         }
@@ -145,7 +172,7 @@ foreach ($codeProvider->list() as $filePath => $code) {
         exit(1);
     }
 }
-if($isJsonOutput){
-    $outputter->print($report, $includeSourceFile, $includeModuleName);
+if($outputJson){
+    $outputter->print($report, $outputIncludeSourceFile, $outputIncludeModuleName);
 }
 exit(0);

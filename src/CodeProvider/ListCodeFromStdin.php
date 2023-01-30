@@ -6,6 +6,8 @@ use MageOs\PhpDependencyList\ListCode;
 
 class ListCodeFromStdin implements ListCode
 {
+    const FILE_PATH = 'stdin';
+
     /**
      * @var resource
      */
@@ -38,7 +40,7 @@ class ListCodeFromStdin implements ListCode
             if ($chunk === '') {
                 continue;
             }
-            yield 'stdin' => $chunk;
+            yield self::FILE_PATH => $chunk;
         }
     }
 }
