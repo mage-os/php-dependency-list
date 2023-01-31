@@ -27,17 +27,28 @@ class ReferencedModulesInComposerJson implements ParserInterface
      */
     public function canParse($filePath)
     {
-        return (1 === preg_match(self::PATTERN, $filePath)) 
-            || $filePath == ListCodeFromStdin::FILE_PATH;
+        return (1 === preg_match(self::PATTERN, $filePath));
     }
 
     /**
-     * @param string $code
+     * @param string $content
      * @return []Reference
      */
-    public function parse($phpCode)
+    public function parse($content)
     {
-        return [];
+        $composerJson = json_decode($content, true);
+        if($composerJson === null){
+            throw new ParseException(json_last_error_msg(), json_last_error());
+        }
+
+        $references = [];
+        if(isset($composerJson['require'])){
+            foreach($composerJson['require'] as $module => $version){
+                $references[] = new Reference(null, $module);
+            }
+        }
+
+        return $references;
     }
 
     /**

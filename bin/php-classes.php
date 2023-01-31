@@ -14,6 +14,8 @@ use MageOs\PhpDependencyList\CodeProvider\ListCodeFromFileList;
 use MageOs\PhpDependencyList\CodeProvider\ListCodeFromFiles;
 use MageOs\PhpDependencyList\CodeProvider\ListCodeFromStdin;
 
+const VERSION = '1.1.0';
+
 
 // default config
 const OPTION_ENABLE_ALL_PARSERS = '--all';
@@ -42,6 +44,8 @@ $inputType = null;
 
 function printHelpEndExit(){
     global $argv, $validParsers;
+    $VERSION = VERSION;
+    $OPTION_ENABLE_ALL_PARSERS = OPTION_ENABLE_ALL_PARSERS;
 
     $validParserOptions = implode(', ', array_keys($validParsers));
 
@@ -53,6 +57,8 @@ Usage:
 
 Input Options:
     Stdin       - If no files are specified, input code is read from STDIN. Multiple files via STDIN can be separated by a zero byte. 
+                This scenario can be used in cases where the code is not read from some database instead of the file system (for 
+                example a git repo without a working copy, a ZIP archive, ...).
     File list   - If -f is specified before a list of files, each file is assumed to be a list of files to scan
     Files       - If -f is NOT specified, each file specified is scanned
     Both "File List" and "Files" options will recursively scan any directories specified for appropriate files.
@@ -61,7 +67,7 @@ Parser Options:
     By default only PHP (.php/.phtml) files will be evaluated. Any non PHP files will be silently ignored.
     You can change this behaviour by specifying any of the following parsers: {$validParserOptions}
     You can specify multiple parsers, if you wish to evaluate multiple file types in a single.
-    You can also specify the {OPTION_ENABLE_ALL_PARSERS} option to enable all parsers
+    You can also specify the {$OPTION_ENABLE_ALL_PARSERS} option to enable all parsers
     For example: 
     {$argv[0]} --di.xml --php [files...]    - parse all di.xml and php files in the supplied list
     {$argv[0]} --all [files...]             - parse all files in the supplied list
@@ -70,6 +76,8 @@ Output Options
     --json-output               Output in JSON format
     --include-source-file       Include the source filepath of each class referenced in the output
     --include-module-names      Include the module name of each class referenced in the output
+
+Version: {$VERSION}
 
 EOT
     );
@@ -150,7 +158,7 @@ foreach ($codeProvider->list() as $filePath => $code) {
     try {
         /** @var ParserInterface $parser */
         foreach($parsers as $parser){
-            if($parser->canParse($filePath)){
+            if($inputType == INPUT_TYPE_STDIN || $parser->canParse($filePath)){
                 $references = $parser->parse($code);
                 if($outputIncludeSourceFile || $outputIncludeModuleName){
                     foreach($references as $reference){

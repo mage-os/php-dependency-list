@@ -31,12 +31,14 @@ class SourceResolver
      */
     public function resolve(&$reference)
     {
-        if($this->loader){
-            if($reference->hasClass()){
-                $reference->setSourceFile($this->getSourceFile($reference->getClass()));
+        if(!$reference->hasModuleName()){
+            if($this->loader){
+                if($reference->hasClass()){
+                    $reference->setSourceFile($this->getSourceFile($reference->getClass()));
+                }
             }
+            $reference->setModuleName($this->getModuleName($reference));
         }
-        $reference->setModuleName($this->getModuleName($reference));
     }
 
     protected function getSourceFile($class)

@@ -2,7 +2,6 @@
 
 namespace MageOs\PhpDependencyList\Parser;
 
-use MageOs\PhpDependencyList\CodeProvider\ListCodeFromStdin;
 use MageOs\PhpDependencyList\Exception\ParseException;
 use MageOs\PhpDependencyList\ParserInterface;
 use MageOs\PhpDependencyList\Reference;
@@ -20,8 +19,7 @@ class ReferencedClassesInDiXML implements ParserInterface
      */
     public function canParse($filePath)
     {
-        return (1 === preg_match(self::PATTERN, $filePath)) 
-            || $filePath == ListCodeFromStdin::FILE_PATH;
+        return (1 === preg_match(self::PATTERN, $filePath));
     }
 
     /**

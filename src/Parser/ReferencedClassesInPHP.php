@@ -35,8 +35,7 @@ class ReferencedClassesInPHP implements ParserInterface
      */
     public function canParse($filePath)
     {
-        return (1 === preg_match(self::PATTERN, $filePath)) 
-            || $filePath == ListCodeFromStdin::FILE_PATH;
+        return (1 === preg_match(self::PATTERN, $filePath));
     }
 
     /**
@@ -61,10 +60,10 @@ class ReferencedClassesInPHP implements ParserInterface
             $nodes = (new NodeFinder)->findInstanceOf($stmts, Node\Name\FullyQualified::class);
     
             $classesAndFunctions = map(fn(Node\Name\FullyQualified $class) => $class->toCodeString(), $nodes);
-    
-            return unique(filter($classesAndFunctions, function (string $name) {
+            
+            return array_values(unique(filter($classesAndFunctions, function (string $name) {
                 return !in_array($name, self::$exclude, true) && !function_exists($name) && !defined($name);
-            }));
+            })));
         } catch (\PhpParser\Error $exception) {
             throw new ParseException($exception->getMessage(), $exception->getCode(), $exception);
         }

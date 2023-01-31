@@ -27,17 +27,30 @@ class ReferencedModulesInModuleXml implements ParserInterface
      */
     public function canParse($filePath)
     {
-        return (1 === preg_match(self::PATTERN, $filePath)) 
-            || $filePath == ListCodeFromStdin::FILE_PATH;
+        return (1 === preg_match(self::PATTERN, $filePath));
     }
 
     /**
-     * @param string $code
+     * @param string $xml
      * @return []Reference
      */
-    public function parse($phpCode)
+    public function parse($xml)
     {
-        return [];
+        $dom = new \DOMDocument();
+        if (! $dom->loadXML($xml, LIBXML_NOERROR | LIBXML_NOWARNING)) {
+            throw new ParseException(sprintf('Unable to parse XML input'));
+        }
+
+        $references = [];
+
+        /** @var $modules \DOMElement[] */
+        $modules = (new \DOMXPath($dom))->query('/config/module/sequence/module');
+
+        foreach($modules as $module){
+            $references[] = new Reference(null, $module->getAttribute('name'));
+        }
+
+        return $references;
     }
 
     /**

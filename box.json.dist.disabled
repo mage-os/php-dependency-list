@@ -1,7 +1,0 @@
-{
-  "files": [
-    "bin/php-classes.php"
-  ],
-  "force-autodiscovery": true,
-  "output": "php-classes.phar"
-}
