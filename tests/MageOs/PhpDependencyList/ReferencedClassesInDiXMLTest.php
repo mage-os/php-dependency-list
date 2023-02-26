@@ -3,6 +3,7 @@
 namespace MageOs\PhpDependencyList;
 
 use MageOs\PhpDependencyList\Exception\ParseException;
+use MageOs\PhpDependencyList\Parser\ReferencedClassesInDiXML;
 use PHPUnit\Framework\TestCase;
 
 class ReferencedClassesInDiXMLTest extends TestCase
@@ -16,7 +17,7 @@ EOT;
         $sut = new ReferencedClassesInDiXML();
         
         $this->expectException(ParseException::class);
-        $sut->extractReferencedClassesFrom($nonXmlCode);
+        $sut->parse($nonXmlCode);
     }
     
     public function testParsesPreferences(): void
@@ -31,8 +32,11 @@ EOT;
 EOT;
         $sut = new ReferencedClassesInDiXML();
         
-        $list = $sut->extractReferencedClassesFrom($xmlCode);
-        $this->assertSame([\DateTimeImmutable::class, \This\Is\The\Implementation::class], $list);
+        $list = $sut->parse($xmlCode);
+        $this->assertEquals([
+            new Reference(\DateTimeImmutable::class), 
+            new Reference(\This\Is\The\Implementation::class)
+        ], $list);
     }
     
     public function testParsesObjectArguments(): void
@@ -52,8 +56,11 @@ EOT;
 EOT;
         $sut = new ReferencedClassesInDiXML();
         
-        $list = $sut->extractReferencedClassesFrom($xmlCode);
-        $this->assertSame([\This\Is\A\Nested\ArrayType::class, \This\Is\A\Direct\ArgumentType::class], $list);
+        $list = $sut->parse($xmlCode);
+        $this->assertEquals([
+            new Reference(\This\Is\A\Nested\ArrayType::class), 
+            new Reference(\This\Is\A\Direct\ArgumentType::class)
+        ], $list);
     }
     
     public function testParsesVirtualTypes(): void
@@ -73,11 +80,11 @@ EOT;
 EOT;
         $sut = new ReferencedClassesInDiXML();
         
-        $list = $sut->extractReferencedClassesFrom($xmlCode);
-        $this->assertSame([
-            \This\Is\A\Nested\ArrayType::class,
-            \This\Is\A\Direct\ArgumentType::class,
-            \Magento\Framework\Config\Scope::class,
+        $list = $sut->parse($xmlCode);
+        $this->assertEquals([
+            new Reference(\This\Is\A\Nested\ArrayType::class),
+            new Reference(\This\Is\A\Direct\ArgumentType::class),
+            new Reference(\Magento\Framework\Config\Scope::class),
         ], $list);
     }
 }

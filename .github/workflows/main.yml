@@ -1,0 +1,42 @@
+name: Main
+
+# only run this workflow when there is a PR open with master
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Test coding standards for src
+      run: ./vendor/bin/phpcs --standard=PSR12 -- src
+
+    - name: Test coding standards for entrypoint
+      run: ./vendor/bin/phpcs --standard=PSR12 --warning-severity=6 -- bin/php-classes.php
+
+    - name: Run testsuite
+      run: ./vendor/bin/phpunit tests/
+
+
+    

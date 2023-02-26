@@ -1,0 +1,10 @@
+#!/bin/bash -xe
+
+DOCKER_IMAGE=php-dependency-list-env:1.0.0
+
+if [[ "$(docker images -q ${DOCKER_IMAGE} 2> /dev/null)" == "" ]]; then
+  ./bin/build-docker-image
+fi
+
+
+docker run -t --volume $(pwd):/usr/src ${DOCKER_IMAGE} bash -c "make; exit $?"

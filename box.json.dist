@@ -1,7 +1,5 @@
 {
-  "files": [
-    "bin/php-classes.php"
-  ],
-  "force-autodiscovery": true,
-  "output": "php-classes.phar"
+    "chmod": "0700",
+    "main": "bin/php-classes.php",
+    "output": "php-classes.phar"
 }

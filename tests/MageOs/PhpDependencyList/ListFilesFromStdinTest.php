@@ -2,6 +2,7 @@
 
 namespace MageOs\PhpDependencyList;
 
+use MageOs\PhpDependencyList\CodeProvider\ListCodeFromStdin;
 use PHPUnit\Framework\TestCase;
 
 class ListFilesFromStdinTest extends TestCase

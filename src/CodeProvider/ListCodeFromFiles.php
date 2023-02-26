@@ -1,17 +1,22 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace MageOs\PhpDependencyList;
+declare(strict_types=1);
+
+namespace MageOs\PhpDependencyList\CodeProvider;
+
+use MageOs\PhpDependencyList\ListCode;
+use MageOs\PhpDependencyList\RecursivelyReadCodeFromFiles;
 
 class ListCodeFromFiles implements ListCode
 {
     /**
-     * @var string[] 
+     * @var string[]
      */
     private array $filePaths;
 
-    private string $fileNamePattern;
+    private $fileNamePattern;
 
-    public function __construct(string $fileNamePattern, string ...$paths)
+    public function __construct($fileNamePattern, string ...$paths)
     {
         $this->fileNamePattern = $fileNamePattern;
         $this->filePaths       = $paths;
