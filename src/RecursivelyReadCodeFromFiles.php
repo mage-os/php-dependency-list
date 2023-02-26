@@ -14,7 +14,7 @@ class RecursivelyReadCodeFromFiles
     }
 
     /**
-     * @param string[] $filePaths
+     * @param  string[] $filePaths
      * @return \Iterator
      */
     public function list(array $filePaths): \Iterator

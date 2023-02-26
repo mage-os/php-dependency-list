@@ -19,7 +19,7 @@ class SourceResolver
     public function __construct()
     {
         if (is_file('./vendor/autoload.php')) {
-            $this->loader = require './vendor/autoload.php';
+            $this->loader = include './vendor/autoload.php';
         } else {
             fwrite(STDERR, './vendor/autoload.php is not found, unable to resolve classes to file. (please run composer install and run again)' . PHP_EOL); //phpcs:ignore
         }

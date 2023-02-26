@@ -24,7 +24,7 @@ class ReferencedModulesInComposerJson implements ParserInterface
     public const PATTERN = '/.*composer\.json$/';
 
     /**
-     * @param string $filePath
+     * @param  string $filePath
      * @return bool
      */
     public function canParse($filePath)
@@ -33,7 +33,7 @@ class ReferencedModulesInComposerJson implements ParserInterface
     }
 
     /**
-     * @param string $content
+     * @param  string $content
      * @return []Reference
      */
     public function parse($content)

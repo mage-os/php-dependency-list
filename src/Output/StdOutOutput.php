@@ -11,7 +11,9 @@ class StdOutOutput
     public function print($filePath, $references = [], $includeSourceFile = false, $includeModuleName = false)
     {
         fwrite(STDOUT, $filePath . PHP_EOL);
-        /** @var Reference $reference */
+        /**
+ * @var Reference $reference
+*/
         foreach ($references as $reference) {
             fwrite(STDOUT, '  ');
             if ($reference->hasClass()) {

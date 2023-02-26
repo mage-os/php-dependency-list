@@ -16,7 +16,7 @@ class ReferencedClassesInDiXML implements ParserInterface
     public const PATTERN = '/.*di\.xml$/';
 
     /**
-     * @param string $filePath
+     * @param  string $filePath
      * @return bool
      */
     public function canParse($filePath)
@@ -25,7 +25,7 @@ class ReferencedClassesInDiXML implements ParserInterface
     }
 
     /**
-     * @param string $code
+     * @param  string $code
      * @return []Reference
      */
     public function parse($xml)
@@ -39,14 +39,19 @@ class ReferencedClassesInDiXML implements ParserInterface
         $arguments = $this->extractArguments($dom);
         $virtualTypes = $this->extractVirtualTypes($dom);
 
-        return array_map(function ($class) {
-            return new Reference($class);
-        }, merge($preferences, $arguments, $virtualTypes));
+        return array_map(
+            function ($class) {
+                return new Reference($class);
+            },
+            merge($preferences, $arguments, $virtualTypes)
+        );
     }
 
     private function extractPreferences(\DOMDocument $dom): array
     {
-        /** @var $preferences \DOMElement[] */
+        /**
+ * @var $preferences \DOMElement[]
+*/
         $preferences = (new \DOMXPath($dom))->query('/config/preference');
 
         $classes = [];
@@ -59,7 +64,9 @@ class ReferencedClassesInDiXML implements ParserInterface
 
     private function extractArguments(\DOMDocument $dom): array
     {
-        /** @var $arguments \DOMElement[] */
+        /**
+ * @var $arguments \DOMElement[]
+*/
         $xpath  = new \DOMXPath($dom);
         $arguments = $xpath->query("//argument[@xsi:type='object']|//item[@xsi:type='object']");
         $classes = [];
@@ -72,7 +79,9 @@ class ReferencedClassesInDiXML implements ParserInterface
 
     private function extractVirtualTypes(\DOMDocument $dom): array
     {
-        /** @var $virtualTypes \DOMElement[] */
+        /**
+ * @var $virtualTypes \DOMElement[]
+*/
         $xpath  = new \DOMXPath($dom);
         $virtualTypes = $xpath->query("/config/virtualType[@type]");
         $classes = [];

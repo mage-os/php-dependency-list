@@ -17,7 +17,9 @@ class FindFilesMatching
     {
         $files = [];
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
-        /** @var \DirectoryIterator $file */
+        /**
+ * @var \DirectoryIterator $file
+*/
         foreach ($iterator as $file) {
             if (is_array($this->fileNamePattern)) {
                 foreach ($this->fileNamePattern as $pattern) {

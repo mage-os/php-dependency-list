@@ -24,7 +24,7 @@ class ReferencedModulesInModuleXml implements ParserInterface
     public const PATTERN = '/.*module\.xml$/';
 
     /**
-     * @param string $filePath
+     * @param  string $filePath
      * @return bool
      */
     public function canParse($filePath)
@@ -33,7 +33,7 @@ class ReferencedModulesInModuleXml implements ParserInterface
     }
 
     /**
-     * @param string $xml
+     * @param  string $xml
      * @return []Reference
      */
     public function parse($xml)
@@ -45,7 +45,9 @@ class ReferencedModulesInModuleXml implements ParserInterface
 
         $references = [];
 
-        /** @var $modules \DOMElement[] */
+        /**
+ * @var $modules \DOMElement[]
+*/
         $modules = (new \DOMXPath($dom))->query('/config/module/sequence/module');
 
         foreach ($modules as $module) {

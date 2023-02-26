@@ -32,7 +32,7 @@ class ReferencedClassesInPHP implements ParserInterface
     ];
 
     /**
-     * @param string $filePath
+     * @param  string $filePath
      * @return bool
      */
     public function canParse($filePath)
@@ -41,19 +41,25 @@ class ReferencedClassesInPHP implements ParserInterface
     }
 
     /**
-     * @param string $code
+     * @param  string $code
      * @return []Reference
      */
     public function parse($phpCode)
     {
         $classes = $this->extractReferencedClassesFrom($phpCode);
-        return array_map(function ($class) {
-            return new Reference($class);
-        }, $classes);
+        return array_map(
+            function ($class) {
+                return new Reference($class);
+            },
+            $classes
+        );
     }
 
     public function extractReferencedClassesFrom(string $phpCode): array
     {
+        if (substr($phpCode, 0, 5) == '<?xml') {
+            throw new ParseException('Content appears to XML not PHP');
+        }
         try {
             $parser        = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
             $nodeTraverser = new NodeTraverser();
@@ -63,9 +69,16 @@ class ReferencedClassesInPHP implements ParserInterface
 
             $classesAndFunctions = map(fn(Node\Name\FullyQualified $class) => $class->toCodeString(), $nodes);
 
-            return array_values(unique(filter($classesAndFunctions, function (string $name) {
-                return !in_array($name, self::$exclude, true) && !function_exists($name) && !defined($name);
-            })));
+            return array_values(
+                unique(
+                    filter(
+                        $classesAndFunctions,
+                        function (string $name) {
+                            return !in_array($name, self::$exclude, true) && !function_exists($name) && !defined($name);
+                        }
+                    )
+                )
+            );
         } catch (\PhpParser\Error $exception) {
             throw new ParseException($exception->getMessage(), $exception->getCode(), $exception);
         }
