@@ -1,5 +1,7 @@
 #!/usr/bin/env php
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList;
 
@@ -20,10 +22,10 @@ const VERSION = '1.1.0';
 // default config
 const OPTION_ENABLE_ALL_PARSERS = '--all';
 $validParsers = [
-    '--'.ReferencedClassesInPHP::CODE => ReferencedClassesInPHP::class,
-    '--'.ReferencedClassesInDiXML::CODE => ReferencedClassesInDiXML::class,
-    '--'.ReferencedModulesInComposerJson::CODE => ReferencedModulesInComposerJson::class,
-    '--'.ReferencedModulesInModuleXml::CODE => ReferencedModulesInModuleXml::class,
+    '--' . ReferencedClassesInPHP::CODE => ReferencedClassesInPHP::class,
+    '--' . ReferencedClassesInDiXML::CODE => ReferencedClassesInDiXML::class,
+    '--' . ReferencedModulesInComposerJson::CODE => ReferencedModulesInComposerJson::class,
+    '--' . ReferencedModulesInModuleXml::CODE => ReferencedModulesInModuleXml::class,
 ];
 $enabledParsers = [
     ReferencedClassesInPHP::class
@@ -42,7 +44,8 @@ const INPUT_TYPE_FILE_LIST = 1; // list of files in file
 const INPUT_TYPE_FILES = 2; // list of files passed in as arguments
 $inputType = null;
 
-function printHelpEndExit(){
+function printHelpEndExit() //phpcs:ignore
+{
     global $argv, $validParsers;
     $VERSION = VERSION;
     $OPTION_ENABLE_ALL_PARSERS = OPTION_ENABLE_ALL_PARSERS;
@@ -56,9 +59,10 @@ Usage:
     cat file.php | {$argv[0]}
 
 Input Options:
-    Stdin       - If no files are specified, input code is read from STDIN. Multiple files via STDIN can be separated by a zero byte. 
-                This scenario can be used in cases where the code is not read from some database instead of the file system (for 
-                example a git repo without a working copy, a ZIP archive, ...).
+    Stdin       - If no files are specified, input code is read from STDIN. Multiple files via STDIN can be 
+                separated by a zero byte. 
+                This scenario can be used in cases where the code is not read from some database instead of the 
+                file system (for example a git repo without a working copy, a ZIP archive, ...).
     File list   - If -f is specified before a list of files, each file is assumed to be a list of files to scan
     Files       - If -f is NOT specified, each file specified is scanned
     Both "File List" and "Files" options will recursively scan any directories specified for appropriate files.
@@ -86,21 +90,21 @@ EOT
 
 // loop through an pull out valid options
 $args = [];
-if(count($argv) > 1){
-    for($x=1; $x<count($argv); $x++){
+if (count($argv) > 1) {
+    for ($x = 1; $x < count($argv); $x++) {
         $option = $argv[$x];
 
-        if(isset($validParsers[$option])){
-            if(!$hasSpecifiedParser){
+        if (isset($validParsers[$option])) {
+            if (!$hasSpecifiedParser) {
                 $enabledParsers = [$validParsers[$option]];
                 $hasSpecifiedParser = true;
-            }else{
+            } else {
                 $enabledParsers[] = $validParsers[$option];
             }
             continue;
         }
 
-        switch($option){
+        switch ($option) {
             case OPTION_ENABLE_ALL_PARSERS:
                 $enabledParsers = array_values($validParsers);
                 $hasSpecifiedParser = true;
@@ -127,28 +131,28 @@ if(count($argv) > 1){
 $enabledParsers = array_unique($enabledParsers);
 $parsers = [];
 $filePatterns = [];
-foreach($enabledParsers as $enabledParser){
+foreach ($enabledParsers as $enabledParser) {
     $parser = new $enabledParser();
     $parsers[] = $parser;
     $filePatterns[] = $parser->getParsiblePattern();
 }
 
 // work out options specified.
-if(count($args) == 0){
+if (count($args) == 0) {
     // no arguments left, must be STDIN
     $inputType = INPUT_TYPE_STDIN;
     $codeProvider = new ListCodeFromStdin();
-}elseif($args[0] == '-f'){
+} elseif ($args[0] == '-f') {
     $inputType = INPUT_TYPE_FILE_LIST;
     $codeProvider = new ListCodeFromFileList($filePatterns, ...array_slice($args, 1));
-}else{
+} else {
     $inputType = INPUT_TYPE_FILES;
     $codeProvider = new ListCodeFromFiles($filePatterns, ...$args);
 }
 
-if($outputJson){
+if ($outputJson) {
     $outputter = new Output\JsonOutput();
-}else{
+} else {
     $outputter = new Output\StdOutOutput();
 }
 $sourceResolver = new SourceResolver();
@@ -157,20 +161,20 @@ $report = [];
 foreach ($codeProvider->list() as $filePath => $code) {
     try {
         /** @var ParserInterface $parser */
-        foreach($parsers as $parser){
-            if($inputType == INPUT_TYPE_STDIN || $parser->canParse($filePath)){
+        foreach ($parsers as $parser) {
+            if ($inputType == INPUT_TYPE_STDIN || $parser->canParse($filePath)) {
                 $references = $parser->parse($code);
-                if($outputIncludeSourceFile || $outputIncludeModuleName){
-                    foreach($references as $reference){
+                if ($outputIncludeSourceFile || $outputIncludeModuleName) {
+                    foreach ($references as $reference) {
                         $sourceResolver->resolve($reference);
                     }
                 }
                 break;
             }
         }
-        if(!$outputJson){
+        if (!$outputJson) {
             $outputter->print($filePath, $references, $outputIncludeSourceFile, $outputIncludeModuleName);
-        }else{
+        } else {
             $report[$filePath] = $references;
         }
     } catch (ParseException $exception) {
@@ -180,7 +184,7 @@ foreach ($codeProvider->list() as $filePath => $code) {
         exit(1);
     }
 }
-if($outputJson){
+if ($outputJson) {
     $outputter->print($report, $outputIncludeSourceFile, $outputIncludeModuleName);
 }
 exit(0);

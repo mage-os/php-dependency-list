@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList\Parser;
 
@@ -10,8 +12,8 @@ use function array_merge as merge;
 
 class ReferencedClassesInDiXML implements ParserInterface
 {
-    const CODE = 'di.xml';
-    const PATTERN = '/.*di\.xml$/';
+    public const CODE = 'di.xml';
+    public const PATTERN = '/.*di\.xml$/';
 
     /**
      * @param string $filePath
@@ -32,12 +34,12 @@ class ReferencedClassesInDiXML implements ParserInterface
         if (! $dom->loadXML($xml, LIBXML_NOERROR | LIBXML_NOWARNING)) {
             throw new ParseException(sprintf('Unable to parse XML input'));
         }
-        
+
         $preferences = $this->extractPreferences($dom);
         $arguments = $this->extractArguments($dom);
         $virtualTypes = $this->extractVirtualTypes($dom);
-        
-        return array_map(function($class){
+
+        return array_map(function ($class) {
             return new Reference($class);
         }, merge($preferences, $arguments, $virtualTypes));
     }
@@ -51,7 +53,7 @@ class ReferencedClassesInDiXML implements ParserInterface
         foreach ($preferences as $preference) {
             $classes[] = $preference->getAttribute('type');
         }
-        
+
         return $classes;
     }
 
@@ -64,7 +66,7 @@ class ReferencedClassesInDiXML implements ParserInterface
         foreach ($arguments as $argument) {
             $classes[] = trim($argument->nodeValue);
         }
-        
+
         return $classes;
     }
 
@@ -77,7 +79,7 @@ class ReferencedClassesInDiXML implements ParserInterface
         foreach ($virtualTypes as $virtualType) {
             $classes[] = trim($virtualType->getAttribute('type'));
         }
-        
+
         return $classes;
     }
 

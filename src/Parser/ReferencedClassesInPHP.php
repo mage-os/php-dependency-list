@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList\Parser;
 
@@ -18,8 +20,8 @@ use function array_unique as unique;
 
 class ReferencedClassesInPHP implements ParserInterface
 {
-    const CODE = 'php';
-    const PATTERN = '/.*\.(?:php|phtml)$/';
+    public const CODE = 'php';
+    public const PATTERN = '/.*\.(?:php|phtml)$/';
 
     private static $exclude = [
         '\\true',
@@ -45,22 +47,22 @@ class ReferencedClassesInPHP implements ParserInterface
     public function parse($phpCode)
     {
         $classes = $this->extractReferencedClassesFrom($phpCode);
-        return array_map(function($class){
+        return array_map(function ($class) {
             return new Reference($class);
         }, $classes);
     }
-    
+
     public function extractReferencedClassesFrom(string $phpCode): array
     {
         try {
-            $parser        = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-            $nodeTraverser = new NodeTraverser;
-            $nodeTraverser->addVisitor(new NameResolver);
+            $parser        = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+            $nodeTraverser = new NodeTraverser();
+            $nodeTraverser->addVisitor(new NameResolver());
             $stmts = $nodeTraverser->traverse($parser->parse($phpCode));
-            $nodes = (new NodeFinder)->findInstanceOf($stmts, Node\Name\FullyQualified::class);
-    
+            $nodes = (new NodeFinder())->findInstanceOf($stmts, Node\Name\FullyQualified::class);
+
             $classesAndFunctions = map(fn(Node\Name\FullyQualified $class) => $class->toCodeString(), $nodes);
-            
+
             return array_values(unique(filter($classesAndFunctions, function (string $name) {
                 return !in_array($name, self::$exclude, true) && !function_exists($name) && !defined($name);
             })));

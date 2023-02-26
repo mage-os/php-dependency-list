@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList\CodeProvider;
 
@@ -22,13 +24,13 @@ class ListCodeFromStdin implements ListCode
         while (($next = fgetc($this->stream)) !== "\0" && $next !== false) {
             $chunk .= $next;
         }
-        
+
         return $chunk;
     }
 
     /**
-     * Read null byte separated PHP file contents from STDIN  
-     * 
+     * Read null byte separated PHP file contents from STDIN
+     *
      * @return \Generator
      */
     public function list(): \Iterator

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList\Parser;
 
@@ -18,8 +20,8 @@ use function array_unique as unique;
 
 class ReferencedModulesInComposerJson implements ParserInterface
 {
-    const CODE = 'composer.json';
-    const PATTERN = '/.*composer\.json$/';
+    public const CODE = 'composer.json';
+    public const PATTERN = '/.*composer\.json$/';
 
     /**
      * @param string $filePath
@@ -37,13 +39,13 @@ class ReferencedModulesInComposerJson implements ParserInterface
     public function parse($content)
     {
         $composerJson = json_decode($content, true);
-        if($composerJson === null){
+        if ($composerJson === null) {
             throw new ParseException(json_last_error_msg(), json_last_error());
         }
 
         $references = [];
-        if(isset($composerJson['require'])){
-            foreach($composerJson['require'] as $module => $version){
+        if (isset($composerJson['require'])) {
+            foreach ($composerJson['require'] as $module => $version) {
                 $references[] = new Reference(null, $module);
             }
         }

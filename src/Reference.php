@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList;
 
@@ -70,9 +72,9 @@ class Reference implements JsonSerializable
     public function toArray()
     {
         return [
-            'class' => $this->hasClass()? $this->getClass() : null,
-            'module' => $this->hasModuleName()? $this->getModuleName() : null,
-            'source' => $this->hasSourceFile()? $this->getSourceFile() : null,
+            'class' => $this->hasClass() ? $this->getClass() : null,
+            'module' => $this->hasModuleName() ? $this->getModuleName() : null,
+            'source' => $this->hasSourceFile() ? $this->getSourceFile() : null,
         ];
     }
 

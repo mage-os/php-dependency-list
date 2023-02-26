@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList\Parser;
 
@@ -18,8 +20,8 @@ use function array_unique as unique;
 
 class ReferencedModulesInModuleXml implements ParserInterface
 {
-    const CODE = 'module.xml';
-    const PATTERN = '/.*module\.xml$/';
+    public const CODE = 'module.xml';
+    public const PATTERN = '/.*module\.xml$/';
 
     /**
      * @param string $filePath
@@ -46,7 +48,7 @@ class ReferencedModulesInModuleXml implements ParserInterface
         /** @var $modules \DOMElement[] */
         $modules = (new \DOMXPath($dom))->query('/config/module/sequence/module');
 
-        foreach($modules as $module){
+        foreach ($modules as $module) {
             $references[] = new Reference(null, $module->getAttribute('name'));
         }
 

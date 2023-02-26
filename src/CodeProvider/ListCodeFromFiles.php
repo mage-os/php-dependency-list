@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList\CodeProvider;
 
@@ -8,7 +10,7 @@ use MageOs\PhpDependencyList\RecursivelyReadCodeFromFiles;
 class ListCodeFromFiles implements ListCode
 {
     /**
-     * @var string[] 
+     * @var string[]
      */
     private array $filePaths;
 

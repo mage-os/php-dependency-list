@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList\Output;
 
@@ -8,33 +10,33 @@ class StdOutOutput
 {
     public function print($filePath, $references = [], $includeSourceFile = false, $includeModuleName = false)
     {
-        fwrite(STDOUT, $filePath.PHP_EOL);
+        fwrite(STDOUT, $filePath . PHP_EOL);
         /** @var Reference $reference */
-        foreach($references as $reference){
+        foreach ($references as $reference) {
             fwrite(STDOUT, '  ');
-            if($reference->hasClass()){
+            if ($reference->hasClass()) {
                 fwrite(STDOUT, $reference->getClass());
-            }else{
+            } else {
                 fwrite(STDOUT, 'N/A');
             }
-            if($includeSourceFile || $includeModuleName){
+            if ($includeSourceFile || $includeModuleName) {
                 fwrite(STDOUT, ' (');
-                if($includeSourceFile){
+                if ($includeSourceFile) {
                     fwrite(STDOUT, 'source: ');
-                    if($reference->hasSourceFile()){
+                    if ($reference->hasSourceFile()) {
                         fwrite(STDOUT, $reference->getSourceFile());
-                    }else{
+                    } else {
                         fwrite(STDOUT, 'N/A');
                     }
                 }
-                if($includeModuleName){
-                    if($includeSourceFile){
+                if ($includeModuleName) {
+                    if ($includeSourceFile) {
                         fwrite(STDOUT, ', ');
                     }
                     fwrite(STDOUT, 'module: ');
-                    if($reference->hasModuleName()){
+                    if ($reference->hasModuleName()) {
                         fwrite(STDOUT, $reference->getModuleName());
-                    }else{
+                    } else {
                         fwrite(STDOUT, 'N/A');
                     }
                 }

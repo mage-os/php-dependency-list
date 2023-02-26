@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MageOs\PhpDependencyList;
 
@@ -16,13 +18,13 @@ class SourceResolver
 
     public function __construct()
     {
-        if(is_file('./vendor/autoload.php')){
+        if (is_file('./vendor/autoload.php')) {
             $this->loader = require './vendor/autoload.php';
-        }else{
-            fwrite(STDERR, './vendor/autoload.php is not found, unable to resolve classes to file. (please run composer install and run again)'.PHP_EOL);
+        } else {
+            fwrite(STDERR, './vendor/autoload.php is not found, unable to resolve classes to file. (please run composer install and run again)' . PHP_EOL); //phpcs:ignore
         }
 
-        foreach(get_loaded_extensions() as $extension){
+        foreach (get_loaded_extensions() as $extension) {
             $this->reflectedExtensions[$extension] = new \ReflectionExtension($extension);
         }
     }
@@ -31,9 +33,9 @@ class SourceResolver
      */
     public function resolve(&$reference)
     {
-        if(!$reference->hasModuleName()){
-            if($this->loader){
-                if($reference->hasClass()){
+        if (!$reference->hasModuleName()) {
+            if ($this->loader) {
+                if ($reference->hasClass()) {
                     $reference->setSourceFile($this->getSourceFile($reference->getClass()));
                 }
             }
@@ -44,10 +46,10 @@ class SourceResolver
     protected function getSourceFile($class)
     {
         $class = ltrim($class, '\\');
-        if(!array_key_exists($class, $this->classToFilePathMap)){
+        if (!array_key_exists($class, $this->classToFilePathMap)) {
             $path = $this->loader->findFile($class);
-            if($path){
-                $path = str_replace(getcwd().'/', '', realpath($path));
+            if ($path) {
+                $path = str_replace(getcwd() . '/', '', realpath($path));
             }
             $this->classToFilePathMap[$class] = $path;
         }
@@ -59,14 +61,14 @@ class SourceResolver
      */
     protected function getModuleName($reference)
     {
-        if($reference->getSourceFile() === false){
-            if($reference->hasClass()){
-                if(!array_key_exists($reference->getClass(), $this->filePathToModuleMap)){
+        if ($reference->getSourceFile() === false) {
+            if ($reference->hasClass()) {
+                if (!array_key_exists($reference->getClass(), $this->filePathToModuleMap)) {
                     $module = false;
                     $class = ltrim($reference->getClass(), '\\');
-                    foreach($this->reflectedExtensions as $reflectedExtension){
-                        if(in_array($class, $reflectedExtension->getClassNames())){
-                            $module = 'ext-'.$reflectedExtension->getName();
+                    foreach ($this->reflectedExtensions as $reflectedExtension) {
+                        if (in_array($class, $reflectedExtension->getClassNames())) {
+                            $module = 'ext-' . $reflectedExtension->getName();
                             break;
                         }
                     }
@@ -74,14 +76,14 @@ class SourceResolver
                 }
                 return $this->filePathToModuleMap[$reference->getClass()];
             }
-        }else{
-            if(!array_key_exists($reference->getSourceFile(), $this->filePathToModuleMap)){
+        } else {
+            if (!array_key_exists($reference->getSourceFile(), $this->filePathToModuleMap)) {
                 $composerJson = $this->findComposerJson($reference->getSourceFile());
-                if($composerJson){
+                if ($composerJson) {
                     $composerJson = json_decode(file_get_contents($composerJson), true);
-                    $this->filePathToModuleMap[$reference->getSourceFile()] = $composerJson['name']; 
-                }else{
-                    $this->filePathToModuleMap[$reference->getSourceFile()] = false; 
+                    $this->filePathToModuleMap[$reference->getSourceFile()] = $composerJson['name'];
+                } else {
+                    $this->filePathToModuleMap[$reference->getSourceFile()] = false;
                 }
             }
             return $this->filePathToModuleMap[$reference->getSourceFile()];
@@ -89,13 +91,14 @@ class SourceResolver
         return null;
     }
 
-    protected function findComposerJson($path){
-        if(!$path){
+    protected function findComposerJson($path)
+    {
+        if (!$path) {
             return false;
         }
-        $dir = dirname($path);    
-        if(is_file($dir.'/composer.json')){
-            return $dir.'/composer.json';
+        $dir = dirname($path);
+        if (is_file($dir . '/composer.json')) {
+            return $dir . '/composer.json';
         }
         return $this->findComposerJson($dir);
     }
