@@ -68,3 +68,8 @@ The Phar can be built with the shell script provided
 ```bash
 ./bin/build-phar
 ```
+
+### Coding standards
+All code should conform to PSR12.
+You can check this with: `./vendor/bin/phpcs --standard=PSR12 -- src`
+Alot of the errors and warnings can be auto corrected with: `./vendor/bin/phpcbf --standard=PSR12 src`
