@@ -33,7 +33,7 @@ jobs:
       run: ./vendor/bin/phpcs --standard=PSR12 -- src
 
     - name: Test coding standards for entrypoint
-      run: ./vendor/bin/phpcs --standard=PSR12 --warning-severity=6 -- bin/php-classes.php src
+      run: ./vendor/bin/phpcs --standard=PSR12 --warning-severity=6 -- bin/php-classes.php
 
     - name: Run testsuite
       run: ./vendor/bin/phpunit tests/
