@@ -3,6 +3,7 @@
 namespace MageOs\PhpDependencyList;
 
 use MageOs\PhpDependencyList\Exception\ParseException;
+use MageOs\PhpDependencyList\Parser\ReferencedClassesInPHP;
 use PHPUnit\Framework\TestCase;
 
 class ReferencedClassesinPHPTest extends TestCase
@@ -20,7 +21,7 @@ EOT;
 
     }
 
-    public function testThrowsNoExceptionOnXml()
+    public function testThrowsExceptionOnXml()
     {
         $xmlCode = <<<EOT
 <?xml version="1.0"?>
@@ -35,6 +36,7 @@ EOT;
 EOT;
         $sut = new ReferencedClassesInPHP();
         
+        $this->expectException(ParseException::class);
         $result = $sut->extractReferencedClassesFrom($xmlCode);
         
         $this->assertSame([], $result);
