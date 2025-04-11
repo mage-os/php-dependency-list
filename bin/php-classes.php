@@ -16,7 +16,7 @@ use MageOs\PhpDependencyList\CodeProvider\ListCodeFromFileList;
 use MageOs\PhpDependencyList\CodeProvider\ListCodeFromFiles;
 use MageOs\PhpDependencyList\CodeProvider\ListCodeFromStdin;
 
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 
 
 // default config

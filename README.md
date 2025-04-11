@@ -31,7 +31,7 @@ Output Options
     --include-source-file       Include the source filepath of each class referenced in the output
     --include-module-names      Include the module name of each class referenced in the output
 
-Version: 1.1.0
+Version: 1.2.0
 ```
 
 ## License
@@ -49,12 +49,12 @@ This can be built with `./bin/build-docker-image`
 
 You can then commands with the following:
 ```bash
-docker run -t --volume $(pwd):/usr/src php-dependency-list-env:1.0.0 bash -c "COMMAND"
+docker run -t --volume $(pwd):/usr/src php-dependency-list-env:1.1.0 bash -c "COMMAND"
 ```
 
 For example to test the "help" output
 ```bash
-docker run -t --volume $(pwd):/usr/src php-dependency-list-env:1.0.0 bash -c "php bin/php-classes.php --help"
+docker run -t --volume $(pwd):/usr/src php-dependency-list-env:1.1.0 bash -c "php bin/php-classes.php --help"
 ```
 
 ### Regression Testing

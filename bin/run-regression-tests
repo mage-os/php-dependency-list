@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-DOCKER_IMAGE=php-dependency-list-env:1.0.0
+DOCKER_IMAGE=php-dependency-list-env:1.1.0
 
 if [[ "$(docker images -q ${DOCKER_IMAGE} 2> /dev/null)" == "" ]]; then
   ./bin/build-docker-image

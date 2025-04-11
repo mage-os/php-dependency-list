@@ -2,7 +2,7 @@
     "name": "mage-os/php-dependency-list",
     "description": "Determine PHP class source dependencies file within a project",
     "require": {
-        "nikic/php-parser": "^4.13"
+        "nikic/php-parser": "^5.4"
     },
     "license": "BSD-3-Clause",
     "autoload": {
