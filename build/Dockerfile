@@ -1,4 +1,4 @@
-FROM php:8.1.14-cli
+FROM php:8.3.19-cli
 
 ARG UUID=1000
 ARG GUID=1000

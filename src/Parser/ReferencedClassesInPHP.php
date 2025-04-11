@@ -61,7 +61,7 @@ class ReferencedClassesInPHP implements ParserInterface
             throw new ParseException('Content appears to XML not PHP');
         }
         try {
-            $parser        = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+            $parser        = (new ParserFactory())->createForHostVersion();
             $nodeTraverser = new NodeTraverser();
             $nodeTraverser->addVisitor(new NameResolver());
             $stmts = $nodeTraverser->traverse($parser->parse($phpCode));
